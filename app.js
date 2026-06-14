@@ -69,7 +69,7 @@ const questions = [
  * Should return true if they match, false if they don't.
  */
 function checkAnswer(selected, correct) {
-
+  return selected === correct;
 }
 
 
@@ -81,7 +81,14 @@ function checkAnswer(selected, correct) {
  * Should return how many of those values are true (correct answers).
  */
 function calculateScore(results) {
+  let score = 0;
 
+  for (let i = 0; i < results.length; i++) {
+    if (results[i] === true) {
+      score++;
+    }
+  }
+  return score;
 }
 
 
@@ -97,6 +104,19 @@ function calculateScore(results) {
  *   Below 60%     → 'F'
  */
 function getGrade(score, total) {
+  const percentage = (score / total) * 100;
+
+  if (percentage >= 90) {
+    return 'A';
+  } else if (percentage >= 80) {
+    return 'B';
+  } else if (percentage >= 70) {
+    return 'C';
+  } else if (percentage >= 60) {
+    return 'D';
+  } else {
+    return 'F';
+  }
 
 }
 
