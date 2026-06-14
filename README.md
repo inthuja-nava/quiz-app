@@ -9,10 +9,10 @@ The quiz topic chosen for this project is Space & Astronomy.
 
 ## Sreenshot
 ### Quiz App In Progress
-[Quiz App In Progress](screenshot-inprogress.png)
+![Quiz App - In Progress](screenshot-inprogress.png)
 
 ### Quiz App Results
-[Quiz App Results](screenshot-results.png)
+![Quiz App - Results](screenshot-results.png)
 
 
 
