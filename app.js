@@ -177,7 +177,41 @@ const LETTERS = ['A', 'B', 'C', 'D']; // used for the A B C D badges on buttons
  * HTML tags like "<h1>" that would be parsed as real HTML otherwise.
  */
 function renderQuestion() {
+  answered = false;
 
+  const currentQuestion = questions[currentIndex];
+  const score = calculateScore(results);
+  const progressPercent = (currentIndex / questions.length) * 100;
+
+  progressBar.style.width = progressPercent + '%';
+  questionCounter.textContent = `Question ${currentIndex + 1} of ${questions.length}`;
+  scoreBadge.textContent = `Score: ${score}`;
+  questionText.textContent = currentQuestion.question;
+
+  optionsGrid.textContent = '';
+
+  currentQuestion.options.forEach((option, index) => {
+    const button = document.createElement('button');
+    button.classList.add('option-btn');
+
+    const letterSpan = document.createElement('span');
+    letterSpan.classList.add('option-letter');
+    letterSpan.textContent = LETTERS[index];
+
+    button.appendChild(letterSpan);
+    button.appendChild(document.createTextNode(option));
+
+    button.addEventListener('click', () => {
+      handleOptionClick(option, button);
+    });
+
+    optionsGrid.appendChild(button);
+  });
+
+  feedbackBox.textContent = '';
+  feedbackBox.className = 'feedback-box';
+  nextBtn.classList.remove('show');
+  nextBtn.textContent = 'Next Question →';
 }
 
 
@@ -197,7 +231,43 @@ function renderQuestion() {
  *   7. Reveal the Next button (change its text to "See Results →" on the last question)
  */
 function handleOptionClick(selected, clickedBtn) {
+  if (answered) {
+    return;
+  }
 
+  answered = true;
+
+  const currentQuestion = questions[currentIndex];
+  const isCorrect = checkAnswer(selected, currentQuestion.correctAnswer);
+  results.push(isCorrect);
+
+  const optionButtons = optionsGrid.querySelectorAll('.option-btn');
+
+  optionButtons.forEach((button) => {
+    button.disabled = true;
+
+    const optionText = button.textContent.slice(1);
+    if (optionText === currentQuestion.correctAnswer) {
+      button.classList.add('correct');
+    }
+  });
+
+  if (isCorrect) {
+    clickedBtn.classList.add('correct');
+    feedbackBox.textContent = 'Correct! Great job.';
+    feedbackBox.className = 'feedback-box show correct';
+  } else {
+    clickedBtn.classList.add('wrong');
+    feedbackBox.textContent = `Wrong. The correct answer is ${currentQuestion.correctAnswer}.`;
+    feedbackBox.className = 'feedback-box show wrong';
+  }
+
+  scoreBadge.textContent = `Score: ${calculateScore(results)}`;
+  nextBtn.classList.add('show');
+
+  if (currentIndex === questions.length - 1) {
+    nextBtn.textContent = 'See Results →';
+  }
 }
 
 
@@ -213,7 +283,34 @@ function handleOptionClick(selected, clickedBtn) {
  *   3. Hide the quiz card and reveal the results card
  */
 function showResults() {
+  const score = calculateScore(results);
+  const total = questions.length;
+  const percentage = Math.round((score / total) * 100);
+  const grade = getGrade(score, total);
 
+  progressBar.style.width = '100%';
+  scoreDisplay.innerHTML = `${score}<span>/${total}</span>`;
+  gradeDisplay.textContent = grade;
+  correctCount.textContent = score;
+  wrongCount.textContent = total - score;
+  percentDisplay.textContent = `${percentage}%`;
+
+  if (grade === 'A' || grade === 'B') {
+    resultsEmoji.textContent = '🎉';
+    resultsTitle.textContent = 'Great work!';
+    resultsSubtitle.textContent = 'You know your basketball facts.';
+  } else if (grade === 'C' || grade === 'D') {
+    resultsEmoji.textContent = '👍';
+    resultsTitle.textContent = 'Nice effort!';
+    resultsSubtitle.textContent = 'A little review and you can improve your score.';
+  } else {
+    resultsEmoji.textContent = '📚';
+    resultsTitle.textContent = 'Keep practicing!';
+    resultsSubtitle.textContent = 'Try again and see if you can beat your score.';
+  }
+
+  quizCard.style.display = 'none';
+  resultsCard.classList.add('show');
 }
 
 
@@ -228,7 +325,13 @@ function showResults() {
  *   3. Call renderQuestion() to start from the first question
  */
 function restartQuiz() {
+  currentIndex = 0;
+  results = [];
+  answered = false;
 
+  resultsCard.classList.remove('show');
+  quizCard.style.display = 'block';
+  renderQuestion();
 }
 
 
